@@ -1,0 +1,125 @@
+#!/usr/bin/env bash
+#
+# convert-svg 1.0 create by Kevin Kim <chaeya@gmail.com>
+#
+# This program provide image size convert for svg format.
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  
+# USA
+# dependencies
+#       bash
+#       librsvg2-bin
+
+# Usage:
+# convert-svg src-dir target-size(px)
+# ex) convert-svg 96 48
+
+print_help(){
+	echo
+	echo "`basename $0` 프로그램 사용법"
+	echo "==============="	
+	echo "$0 <svg 원본 폴더명> <변환할 svg 사이즈>"
+	echo "예) $0 96 48"	
+}
+
+bail() {
+    echo 'Error executing command, exiting'
+    exit 1
+}
+
+exec_cmd_nobail() {
+    echo "+ $1"
+    bash -c "$1"
+}
+
+exec_cmd() {
+    exec_cmd_nobail "$1" || bail
+}
+
+ask() {
+	# https://gist.github.com/davejamesmiller/1965569
+    local prompt default reply
+    if [ "${2:-}" = "Y" ]; then
+        prompt="Y/n"
+        default=Y
+    elif [ "${2:-}" = "N" ]; then
+        prompt="y/N"
+        default=N
+    else
+        prompt="y/n"
+        default=
+    fi
+
+    while true; do
+        echo -n "$1 [$prompt] "
+        read reply </dev/tty
+        if [ -z "$reply" ]; then
+            reply=$default
+        fi
+        case "$reply" in
+            Y*|y*) return 0 ;;
+            N*|n*) return 1 ;;
+        esac
+    done
+}
+
+[[ -z "$1" ]] && echo "프로그램 형식이 잘못되었습니다." && print_help && exit 1
+[[ -z "$2" ]] && echo "프로그램 형식이 잘못되었습니다." && print_help && exit 1
+[[ ! -d "$1" ]] && echo "요청한 소스이미지 폴더 $1 가 없습니다. 소스 이미지가 있는 폴더를 확인하세요" && exit 1
+
+if [ -d "$2" ]; then
+	if ask "요청한 결과물 생성 폴더 $2 가 이미 있습니다. 기존 폴더를 삭제 후 진행하시겠습니까?" N; then
+		echo "Yes"
+		exec_cmd "rm -rf $2 > /dev/null 2>&1"
+	else
+		echo "No"
+		exit 1
+	fi
+fi
+
+SEARCH_FOLDER="${1}/*"
+
+exec_cmd "mkdir $2 > /dev/null 2>&1"
+
+for f in $SEARCH_FOLDER
+do
+    if [ -d "$f" ]
+    then
+        for ff in $f/*
+        do      
+            echo "$ff 는 폴더입니다."
+			
+        done
+    else
+		if [ ${f: -4} == ".svg" ]; then
+			if ! command -v 'rsvg-convert' &> /dev/null ; then
+				echo "'rsvg-convert' could not be found"
+				echo "Use this command for install : sudo apt install -y librsvg2-bin"
+				exit 1
+			else
+				file=`basename $f`			
+				echo "$f 파일을 ${2}px 크기로 변환 후 ${2}/${file} 에 생성합니다."			
+				rsvg-convert -a -w $2 -f svg "$f" -o "${2}/${file}"
+			fi
+
+		else
+			echo "$f 는 svg 파일이 아닙니다."		
+		fi
+
+    fi
+done
+
+killall rsvg-convert > /dev/null 2>&1
+exit 0

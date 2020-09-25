@@ -1,0 +1,151 @@
+#!/usr/bin/env bash
+#
+# convert-svg 1.0 create by Kevin Kim <chaeya@gmail.com>
+#
+# This program provide image size convert for svg format.
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  
+# USA
+# dependencies
+#       bash
+#       librsvg2-bin
+
+# Usage:
+# convert-svg src-dir target-size(px)
+# ex) convert-svg 96 48
+
+# default = Korean
+case $LANG in
+        en* )
+            title="convert-svg v 1.0"
+            title1="Select svg source folder."
+            error1="Could not read folder"
+            error2="Could not write folder"            
+            error3="There are no svg files in the selected folder."
+            ;;
+        *)
+            title="convert-svg v 1.0"
+            title1="크기를 변환할 svg 아이콘이 있는 원본 폴더를 선택하세요"      
+            error1="폴더에 읽기 권한이 없습니다."
+            error2="폴더에 쓰기 권한이 없습니다."            
+            error3="선택한 폴더에 svg 파일이 없습니다."
+
+esac
+
+xcheck=`tty | cut -d '/' -f3`
+if [ $xcheck != "pts" ]; then
+    echo "Error: This Program must be run under GUI"
+    exit 1
+fi
+
+if [ -z "$1" ]; then
+    cd $HOME
+    input=$(zenity --file-selection  --title="$title1" --directory)
+else
+    input="$1"
+fi
+
+if [ -z "$input" ]; then
+    exit 1
+fi    
+
+realpath=`realpath "$input"`
+cd $realpath
+
+#Check read permissions
+if [ ! -r "$realpath" ]; then
+        zenity --error --width=300 --title="$title" --text "<b>$input:</b>
+
+$error1"
+        exit 2
+fi
+
+#Check write permissions
+if [ ! -w "$realpath" ]; then
+        zenity --error --width=300 --title="$title" --text "<b>$input:</b>
+
+$error2"
+        exit 2
+fi
+
+numberOfArgs=$(find $realpath -name "*.svg" | wc -l)
+
+if [ $numberOfArgs -le 0 ]; then
+    zenity --error --width=300 --title="$title" --text "<b>$input:</b>
+
+$error3"     
+    exit 1
+fi    
+
+# echo $numberOfArgs
+
+# use nullglob in case there are no matching files
+shopt -s nullglob
+
+# create an array with all the filer/dir inside ~/myDir
+arr=($realpath/*)
+
+optArray=$(zenity --list --checklist --width=300 --height=320 --title="Options"\
+    --text="변환할 크기를 선택하세요"\
+    --column="Use"\
+    --column="Options"\
+    False 256 False 128 False 96 False 64 TRUE 48 TRUE 32 TRUE 24 TRUE 16)
+
+
+cd ..
+wdir=`pwd`
+#Check write permissions
+if [ ! -w "$wdir" ]; then
+        zenity --error --width=300 --title="$title" --text "<b>$wdir:</b>
+
+$error2"
+        exit 2
+fi
+
+for size in ${optArray//|/ }; do 
+    # echo $size; 
+    let "target=$size"
+
+    if [ -d "$target" ]; then
+        if ask=$(zenity --question --width=300 --height=200  --text="결과물이 생성될 $target 폴더가 이미 있습니다.\n기존 폴더를 삭제 후 진행하시겠습니까??"); then
+            rm -rf $target > /dev/null 2>&1
+        else
+            exit 1
+        fi
+    fi
+
+    mkdir "$target"
+
+    for (( i=0; i<$numberOfArgs; i++ )); do
+        let "count=i+1"
+        file=`basename ${arr[$i]}`
+        echo "# [$count] : $file convert to $target/$file"        
+
+        rsvg-convert -a -w ${target} -f svg "${arr[$i]}" -o "${target}/${file}"
+
+        echo "$(( (i * 100) /numberOfArgs ))"
+        sleep 0.1 
+        shift 1
+    done | zenity --progress --pulsate --auto-kill --auto-close --width=500 --height=200 --title="Convert files into $target Directory" --percentage=0
+
+    if [ "$?" -eq 1 ]; then
+        zenity --error --width=300 --height=200 --text="Program Aborted"
+        exit 1
+    fi
+
+done
+
+killall rsvg-convert > /dev/null 2>&1
+exit 0
