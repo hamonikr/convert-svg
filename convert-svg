@@ -111,7 +111,10 @@ do
 			else
 				file=`basename $f`			
 				echo "$f 파일을 ${2}px 크기로 변환 후 ${2}/${file} 에 생성합니다."			
-				rsvg-convert -a -w $2 -f svg "$f" -o "${2}/${file}"
+                
+                comments=$(grep -o "<!--.*-->" "$file")
+                rsvg-convert -a -w "${2}" -h "${2}" -f svg "$f" -o "${2}/${file}"
+                sed -i -e "s/<[?]\?xml[^>]*>//g" -e "s/${2}pt/${2}px/g" -e "1s/^/${comments}/" "${2}/$file"                
 			fi
 
 		else

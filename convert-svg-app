@@ -144,8 +144,10 @@ for size in ${optArray//|/ }; do
         let "count=i+1"
         file=`basename ${arr[$i]}`
         echo "# [$count] : $file convert to $target/$file"        
-
-        rsvg-convert -a -w ${target} -f svg "${arr[$i]}" -o "${target}/${file}"
+        
+        comments=$(grep -o "<!--.*-->" "$file")
+        rsvg-convert -a -w "$size" -h "$size" -f svg "${arr[$i]}" -o "${target}/${file}"
+        sed -i -e "s/<[?]\?xml[^>]*>//g" -e "s/${size}pt/${size}px/g" -e "1s/^/${comments}/" "$target/$file"
 
         echo "$(( (i * 100) /numberOfArgs ))"
         sleep 0.1 
