@@ -1,0 +1,5 @@
+convert-svg (1.0.0) bionic; urgency=medium
+
+  * Initial release
+
+ -- HamoniKR <pkg@hamonikr.org>  Sat, 26 Sep 2020 15:44:29 +0900

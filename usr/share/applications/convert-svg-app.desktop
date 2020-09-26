@@ -1,0 +1,14 @@
+[Desktop Entry]
+Name=SVG Resize Tool
+Name[ko]=SVG 크기 변환
+GenericName=SVG Resize Tool
+GenericName[ko]=SVG 크기 변환 프로그램
+Exec=convert-svg-app
+Comment=svg image resize program
+Comment[ko]=svg 파일을 원하는 크기로 변환합니다
+Terminal=false
+Icon=convert-svg
+Type=Application
+Categories=Utility;
+Keywords=svg;resize;convert;
+Keywords[ko]=svg;resize;convert;이미지;사이즈;

@@ -1,3 +1,6 @@
+![hamonikr-me](https://img.shields.io/badge/hamonikr-me-orange)
+![hamonikr-sun](https://img.shields.io/badge/hamonikr-sun-green)
+
 ## convert-svg
 
 - svg 파일을 원하는 사이즈로 조정하는 프로그램
@@ -8,13 +11,18 @@
  * convert-svg : 터미널에서 동작하는 프로그램
  * convert-svg-app : 같은 기능의 GUI 프로그램
 
-## 사용법
-다운로드 받은 파일을 실행권한을 부여하고 /usr/local/bin 경로에 복사
-````
-chmod +x convert-svg convert-svg-app
-chmod +x convert-svg convert-svg-app
-sudo cp convert-svg* /usr/local/bin/
-
-
-convert-svg-app
+## 설치
 ```
+sudo apt update
+sudo apt install convert-svg
+```
+
+## 사용법
+1) `프로그램 > svg 크기 변환 프로그램` 실행 후 원본 svg 파일이 있는 디렉토리를
+2) 사이즈를 변환하고 싶은 항목을 선택
+3) 선택한 원본 svg 폴더가 있는 디렉토리에 변환된 이미지가 생성됩니다. 
+
+![screen1](doc/screen1.png)
+
+## 이슈 또는 버그
+ 사용 중 문제를 발견하시면 root@hamonikr.org 또는 https://hamonikr.org 에서 알려주세요.
