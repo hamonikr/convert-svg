@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# convert-svg 1.0 create by Kevin Kim <chaeya@gmail.com>
+# convert-svg 1.1 create by Kevin Kim <chaeya@gmail.com>
 #
 # This program provide image size convert for svg format.
 #
@@ -24,25 +24,27 @@
 
 # Usage:
 # convert-svg src-dir target-size(px)
-# ex) convert-svg 96 48
+# ex) convert-svg icons-dir 48
 
 # default = Korean
 case $LANG in
         en* )
-            title="convert-svg v 1.0"
+            title="convert-svg v 1.1"
             title1="Select svg source folder"
             title2="rsvg-convert command not found"            
-            text1="Choose Program Options"
+            text1="Do you want to convert png format also?"            
+            text2="Choose Program Options"            
             error1="Could not read folder"
             error2="Could not write folder"            
             error3="There are no svg files in the selected folder"
             error4="rsvg-convert command not found.\n\nOpen Terminal and Paste below text for Install.\nsudo apt install -y librsvg2-bin"            
             ;;
         *)
-            title="convert-svg v 1.0"
+            title="convert-svg v 1.1"
             title1="크기를 변환할 svg 아이콘이 있는 원본 폴더를 선택하세요"      
             title2="명령어를 찾을 수 없습니다"                        
-            text1="변환할 크기를 선택하세요"            
+            text1="png 파일도 함께 생성 하시겠습니까?"            
+            text2="변환할 크기를 선택하세요"                        
             error1="폴더에 읽기 권한이 없습니다"
             error2="폴더에 쓰기 권한이 없습니다"            
             error3="선택한 폴더에 svg 파일이 없습니다"
@@ -101,6 +103,11 @@ $error3"
     exit 1
 fi    
 
+zenity --question --width=300 --height=30 --title="png export option" --text="$text1"
+withpng=$?
+# echo $withpng #  $withpng == 1  without png
+
+
 # echo $numberOfArgs
 
 # use nullglob in case there are no matching files
@@ -110,7 +117,7 @@ shopt -s nullglob
 arr=($realpath/*)
 
 optArray=$(zenity --list --checklist --width=300 --height=320 --title="Options"\
-    --text="$text1"\
+    --text="$text2"\
     --column="Use"\
     --column="Options"\
     False 256 False 128 False 96 False 64 TRUE 48 TRUE 32 TRUE 24 TRUE 16)
@@ -130,24 +137,33 @@ for size in ${optArray//|/ }; do
     # echo $size; 
     let "target=$size"
 
-    if [ -d "$target" ]; then
+    if [ -d "$target" ] || [ -d "$target-png" ] ; then
         if ask=$(zenity --question --width=300 --height=200  --text="결과물이 생성될 $target 폴더가 이미 있습니다.\n기존 폴더를 삭제 후 진행하시겠습니까??"); then
             rm -rf $target > /dev/null 2>&1
+            rm -rf "$target-png" > /dev/null 2>&1            
         else
             exit 1
         fi
     fi
 
     mkdir "$target"
+    if [ X"$withpng" != "X1" ] ; then # selected png output
+        mkdir "$target-png"
+    fi    
 
     for (( i=0; i<$numberOfArgs; i++ )); do
         let "count=i+1"
         file=`basename ${arr[$i]}`
+        filename="${file%.*}"
         echo "# [$count] : $file convert to $target/$file"        
         
-        comments=$(grep -o "<!--.*-->" "$file")
         rsvg-convert -a -w "$size" -h "$size" -f svg "${arr[$i]}" -o "${target}/${file}"
+        comments=$(grep -o "<!--.*-->" "${target}/${file}")        
         sed -i -e "s/<[?]\?xml[^>]*>//g" -e "s/${size}pt/${size}px/g" -e "1s/^/${comments}/" "$target/$file"
+        
+        if [ X"$withpng" != "X1" ] ; then
+            rsvg-convert -f png "$target/$file" -o "${target}-png/${filename}.png"
+        fi
 
         echo "$(( (i * 100) /numberOfArgs ))"
         sleep 0.1 
