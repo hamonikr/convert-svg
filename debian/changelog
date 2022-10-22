@@ -1,3 +1,10 @@
+convert-svg (1.1.1) taebaek; urgency=medium
+
+  * Add icon size 8
+  * Add mimetype
+
+ -- HamoniKR <pkg@hamonikr.org>  Sat, 22 Oct 2022 19:07:10 +0900
+
 convert-svg (1.1.0) focal; urgency=medium
 
   * rebuild for hamonikr 4.0

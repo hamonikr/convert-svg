@@ -12,3 +12,4 @@ Type=Application
 Categories=Utility;
 Keywords=svg;resize;convert;
 Keywords[ko]=svg;resize;convert;이미지;사이즈;
+MimeType=image/svg+xml;image/svg+xml-compressed;inode/directory;

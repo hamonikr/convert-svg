@@ -58,7 +58,7 @@ if [ $xcheck != "pts" ]; then
 fi
 
 if ! command -v 'rsvg-convert' &> /dev/null ; then
-        zenity --error --width=300 --title="$title" --text "<b>$title2:</b>
+        zenity --error --width=500 --title="$title" --text "<b>$title2:</b>
 
 $error4"
         exit 3
@@ -80,7 +80,7 @@ cd $realpath
 
 #Check read permissions
 if [ ! -r "$realpath" ]; then
-        zenity --error --width=300 --title="$title" --text "<b>$input:</b>
+        zenity --error --width=500 --title="$title" --text "<b>$input:</b>
 
 $error1"
         exit 2
@@ -88,7 +88,7 @@ fi
 
 #Check write permissions
 if [ ! -w "$realpath" ]; then
-        zenity --error --width=300 --title="$title" --text "<b>$input:</b>
+        zenity --error --width=500 --title="$title" --text "<b>$input:</b>
 
 $error2"
         exit 2
@@ -97,13 +97,13 @@ fi
 numberOfArgs=$(find $realpath -name "*.svg" | wc -l)
 
 if [ $numberOfArgs -le 0 ]; then
-    zenity --error --width=300 --title="$title" --text "<b>$input:</b>
+    zenity --error --width=500 --title="$title" --text "<b>$input:</b>
 
 $error3"     
     exit 1
 fi    
 
-zenity --question --width=300 --height=30 --title="png export option" --text="$text1"
+zenity --question --width=500 --height=30 --title="png export option" --text="$text1"
 withpng=$?
 # echo $withpng #  $withpng == 1  without png
 
@@ -116,18 +116,18 @@ shopt -s nullglob
 # create an array with all the filer/dir inside ~/myDir
 arr=($realpath/*)
 
-optArray=$(zenity --list --checklist --width=300 --height=320 --title="Options"\
+optArray=$(zenity --list --checklist --width=500 --height=320 --title="Options"\
     --text="$text2"\
     --column="Use"\
     --column="Options"\
-    False 256 False 128 False 96 False 64 TRUE 48 TRUE 32 TRUE 24 TRUE 16)
+    TRUE 256 TRUE 128 TRUE 96 TRUE 64 TRUE 48 TRUE 32 TRUE 24 TRUE 22 TRUE 16 False 8)
 
 
 cd ..
 wdir=`pwd`
 #Check write permissions
 if [ ! -w "$wdir" ]; then
-        zenity --error --width=300 --title="$title" --text "<b>$wdir:</b>
+        zenity --error --width=500 --title="$title" --text "<b>$wdir:</b>
 
 $error2"
         exit 2
@@ -138,7 +138,7 @@ for size in ${optArray//|/ }; do
     let "target=$size"
 
     if [ -d "$target" ] || [ -d "$target-png" ] ; then
-        if ask=$(zenity --question --width=300 --height=200  --text="결과물이 생성될 $target 폴더가 이미 있습니다.\n기존 폴더를 삭제 후 진행하시겠습니까??"); then
+        if ask=$(zenity --question --width=500 --height=200  --text="결과물이 생성될 $target 폴더가 이미 있습니다.\n기존 폴더를 삭제 후 진행하시겠습니까??"); then
             rm -rf $target > /dev/null 2>&1
             rm -rf "$target-png" > /dev/null 2>&1            
         else
@@ -171,7 +171,7 @@ for size in ${optArray//|/ }; do
     done | zenity --progress --pulsate --auto-kill --auto-close --width=500 --height=200 --title="Convert files into $target Directory" --percentage=0
 
     if [ "$?" -eq 1 ]; then
-        zenity --error --width=300 --height=200 --text="Program Aborted"
+        zenity --error --width=500 --height=200 --text="Program Aborted"
         exit 1
     fi
 
