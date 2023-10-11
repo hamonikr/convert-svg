@@ -6,7 +6,7 @@ Build-Depends: debhelper (>= 9)
 Standards-Version: 3.9.5
 
 Package: convert-svg
-Architecture: amd64
+Architecture: all
 Depends: zenity,
          librsvg2-bin,
          ${misc:Depends},

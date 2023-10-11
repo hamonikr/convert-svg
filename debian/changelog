@@ -1,3 +1,9 @@
+convert-svg (1.1.2) stable; urgency=medium
+
+  * Release for HamoniKR 7.0
+
+ -- HamoniKR <pkg@hamonikr.org>  Wed, 11 Oct 2023 09:56:34 +0900
+
 convert-svg (1.1.1) taebaek; urgency=medium
 
   * Add icon size 8
