@@ -1,3 +1,10 @@
+convert-svg (1.1.3) stable; urgency=medium
+
+  * Release for ubuntu 24.04
+   - Add CI action
+
+ -- HamoniKR <pkg@hamonikr.org>  Fri, 28 Jun 2024 01:36:53 +0900
+
 convert-svg (1.1.2) stable; urgency=medium
 
   * Release for HamoniKR 7.0
